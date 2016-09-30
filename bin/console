@@ -1,0 +1,25 @@
+#!/usr/bin/env ruby
+
+require "bundler/setup"
+require "agate"
+
+include Agate
+
+sexp = RubyParser.new.parse(   <<-CODE
+$a = b = 1
+$a
+A = 1
+B = "hello"
+::B
+A
+CODE
+)
+pp sexp
+puts "============================================="
+node = Transform.new.apply(sexp)
+visitor = TypeVisitor.new(Agate::Context.new)
+node.accept visitor
+pp node.map{|n| n.type.name }.join ';'
+puts "============================================="
+pp node.last.type.ancestors.map(&:name).join ','
+#pp node
